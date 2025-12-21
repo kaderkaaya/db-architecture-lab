@@ -22,11 +22,9 @@ Peki nasıl çözeriz?
 N+1 problemini:
 - JOIN
 - Batch queries
-- ORM tarafında eager loading (populate / include)
+- ORM/ODM tarafında eager loading (populate / include) kullanarak çözebiliriz.
 
-kullanarak çözebiliriz.
-
-### Mongoose ile N+1 Problemi
+### Mongoose ile N+1 Problemi(ODM)
 User modelinde:
 - id
 - email
@@ -53,7 +51,7 @@ static async getOrders() {
   return orders;
 }
 ```
- N+1 üreten doğru kullanım:
+ Doğru kullanım:
 
 ```js
 static async getOrders() {
@@ -62,7 +60,7 @@ static async getOrders() {
   return orders;
 }
 ```
-### Sequeilize ile N+1 Problemi
+### Sequeilize ile N+1 Problemi(ORM)
 User modelinde:
 - id
 - email
@@ -88,7 +86,7 @@ static async getOrders() {
   }
 }
 ```
- N+1 üreten doğru kullanım:
+Doğru kullanım:
 
 ```js
 static async getOrders() {

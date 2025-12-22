@@ -99,15 +99,15 @@ static async getOrders() {
 ```
 ### Yukarıda Sequelize ve Mongoose ORM’lerde bunu nasıl çözebileceğimizi gördük. Şimdi SQL’de nasıl çözebileceğimize bakalım.
 
-[text](../sql/create_user_and_order_for_n_plus.sql)
+[create_table](../sql/create_user_and_order_for_n_plus.sql)
 
 - Burada 100 tane kullanıcı ve her kullanıcıya 100 tane order ait olacak şekilde tabloları oluşturduk. Şimdi bu kullanıcılara ait order’ları getiren bir query yazalım ve N+1 problemine yakından bakalım.
 
-[text](../sql/queries:q5_n_plus_one.sql)
+[n_plus_one_query](../sql/queries:q5_n_plus_one.sql)
 
 - Burada önce kullanıcıları, daha sonra `orders` tablosundan her kullanıcının order’larını ayrı ayrı query olarak yazarsak N+1 problemi ortaya çıkar. Bu durum büyük ölçekli projelerde hem sorguları yavaşlatır hem de maliyeti artırır.
 
-[text](../sql/queries:q6_nplus_one_fix.sql)
+[n_plus_one_query](../sql/queries:q6_nplus_one_fix.sql)
 
 **
 SELECT u.id, u.name, o.id, o.total_price FROM users u JOIN orders o ON o.user_id = u.id LIMIT 0, 10000	10000 row(s) returned	0.0019 sec / 0.018 sec

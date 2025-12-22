@@ -1,6 +1,6 @@
-[text](../sql/queries:q1_no_index.sql)
-[text](../sql/queries:q2_no_index.sql)
-[text](../sql/queries:q3_no_index.sql)
+[no_index](../sql/queries:q1_no_index.sql)
+[no_index](../sql/queries:q2_no_index.sql)
+[no_index](../sql/queries:q3_no_index.sql)
 
 Orders tablosunda bir sorgu yazarken, bu sorgu farklı bir tablodan gelen bir foreign key üzerinden olabilir ya da users tablosunda e‑posta ile bulduğumuz bir kullanıcının id değeri üzerinden çalışabilir.
 
@@ -13,7 +13,7 @@ Eğer sorgularımız beklenenden geç cevap veriyorsa, bir alanı where koşulu 
 Aşağıda, index olmayan bir durumda sorgunun önce tabloyu tarayıp daha sonra filtreleme yaptığına dair zaman ve maliyet hesaplaması yer almaktadır:
 
 '-> Filter: (orders.user_id = 500)  (cost=34.6 rows=34.4) (actual time=0.106..0.115 rows=1 loops=1)\n    -> Table scan on orders  (cost=34.6 rows=344) (actual time=0.0625..0.0998 rows=344 loops=1)\n'
-[text](../sql/queries:q4_with_index.sql)
+[with_index](../sql/queries:q4_with_index.sql)
 
 Aşağıda, orders tablosunda idx_users_id seklinde bir index eklediğimde direk olarak benim verdiğim indexle birlikte sadece user_id = 284 olan kullanıcıları getirir ve daha sonra tarihe göre sort eder bu durumda tablo full scan olmaz.
 

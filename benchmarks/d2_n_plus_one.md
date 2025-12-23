@@ -1,115 +1,164 @@
-### N+1 DB Query Problem ###
+
+---
+
+## N+1 DB Query Problem
 
 Öncelikle N+1 problemi nedir, bunu açıklayacağım. Sonra gerekli sorgular üzerinde birlikte çalışacağız.
 
 N+1 problemi, veritabanına çok fazla sorgu atıldığında ortaya çıkan bir performans sorunudur. Bu durum uygulamanın yavaşlamasına neden olur.
 
-Örneğin bir kurs sistemi olduğunu varsayalım:
-- 100 öğrenci var
-- Her öğrenci birden fazla kursa kayıt olabilir (one-to-many ilişki)
+### Örnek Senaryo
+
+Bir kurs sistemi olduğunu varsayalım:
+
+* 100 öğrenci var
+* Her öğrenci birden fazla kursa kayıt olabilir (**one-to-many ilişki**)
 
 Tüm öğrencilerin kayıt olduğu kursları getirmek için:
-1. Önce tüm öğrencileri listeleriz (1 query)
-2. Daha sonra her öğrenci için, kurs tablosunda studentId ile o öğrenciye ait kursları çekmek için ayrı bir query yazarız
+
+1. Önce tüm öğrencileri listeleriz (**1 query**)
+2. Daha sonra her öğrenci için, kurs tablosunda `studentId` ile o öğrenciye ait kursları çekmek için ayrı bir query yazarız
 
 Eğer 100 öğrenci varsa:
-- 1 + 100 = 101 query çalışır
 
-Bu duruma N+1 DB Query problemi denir. Öğrenci veya kurs sayısı arttıkça query sayısı da artar ve bu durum performansı olumsuz etkiler. Ayrıca sorguların response süresi uzar.
+* **1 + 100 = 101 query** çalışır
 
-Peki nasıl çözeriz?
+Bu duruma **N+1 DB Query problemi** denir. Öğrenci veya kurs sayısı arttıkça query sayısı da artar ve bu durum performansı olumsuz etkiler. Ayrıca sorguların response süresi uzar.
+
+---
+
+## Peki Nasıl Çözeriz?
 
 N+1 problemini:
-- JOIN
-- Batch queries
-- ORM/ODM tarafında eager loading (populate / include) kullanarak çözebiliriz.
 
-### Mongoose ile N+1 Problemi(ODM)
-User modelinde:
-- id
-- email
-- createdAt
+* `JOIN`
+* Batch queries
+* ORM / ODM tarafında **eager loading** (`populate` / `include`)
 
-Order modelinde:
-- id
-- userId
-- price
-- createdAt
+kullanarak çözebiliriz.
 
-Order tablosunda userId ile kullanıcılara ait order’ları bulduğumuzu varsayalım.
+---
 
- N+1 üreten yanlış kullanım:
+## Mongoose ile N+1 Problemi (ODM)
+
+**User modelinde:**
+
+* id
+* email
+* createdAt
+
+**Order modelinde:**
+
+* id
+* userId
+* price
+* createdAt
+
+Order tablosunda `userId` ile kullanıcılara ait order’ları bulduğumuzu varsayalım.
+
+###  N+1 Üreten Yanlış Kullanım
 
 ```js
 static async getOrders() {
   const orders = await OrderModel.find();
 
-  for (const order of orders) { //Eğer burda mapleyerek yaparsak daha doğru bir çözüm olur
+  for (const order of orders) { // Eğer burda mapleyerek yaparsak daha doğru bir çözüm olur
     await order.populate('userId');
   } // burda her loop için ayrı bir query olduğu için yine N+1 problemi ortaya çıkar.
 
   return orders;
 }
 ```
- Doğru kullanım:
+
+### Doğru Kullanım
 
 ```js
 static async getOrders() {
   const orders = await OrderModel.find()
-  .populate('userId');
+    .populate('userId');
+
   return orders;
 }
 ```
-### Sequeilize ile N+1 Problemi(ORM)
-User modelinde:
-- id
-- email
-- created_at
 
-Order modelinde:
-- id
-- user_id
-- price
-- created_at
+---
 
-Order tablosunda user_id ile kullanıcılara ait order’ları bulduğumuzu varsayalım.
+## Sequelize ile N+1 Problemi (ORM)
 
- N+1 üreten yanlış kullanım:
+**User modelinde:**
+
+* id
+* email
+* created_at
+
+**Order modelinde:**
+
+* id
+* user_id
+* price
+* created_at
+
+Order tablosunda `user_id` ile kullanıcılara ait order’ları bulduğumuzu varsayalım.
+
+###  N+1 Üreten Yanlış Kullanım
 
 ```js
 static async getOrders() {
   const users = await UserModel.findAll();
 
-  for (const user of users) { 
-    const orders = await OrderModel.findAll({where:{userId: user.id}});
+  for (const user of users) {
+    const orders = await OrderModel.findAll({ where: { userId: user.id } });
     return orders;
   }
 }
 ```
-Doğru kullanım:
+
+###  Doğru Kullanım
 
 ```js
 static async getOrders() {
   const users = await UserModel.findAll({
-    include: [{
-    model: Order
-  }]
+    include: [
+      {
+        model: Order
+      }
+    ]
   });
 }
 ```
-### Yukarıda Sequelize ve Mongoose ORM’lerde bunu nasıl çözebileceğimizi gördük. Şimdi SQL’de nasıl çözebileceğimize bakalım.
 
+---
+
+## SQL ile N+1 Problemi
+
+Yukarıda Sequelize ve Mongoose ORM’lerde bunu nasıl çözebileceğimizi gördük. Şimdi SQL’de nasıl çözebileceğimize bakalım.
+
+```md
 [create_table](../sql/create_user_and_order_for_n_plus.sql)
+```
 
-- Burada 100 tane kullanıcı ve her kullanıcıya 100 tane order ait olacak şekilde tabloları oluşturduk. Şimdi bu kullanıcılara ait order’ları getiren bir query yazalım ve N+1 problemine yakından bakalım.
+* Burada 100 tane kullanıcı ve her kullanıcıya 100 tane order ait olacak şekilde tabloları oluşturduk.
+  Şimdi bu kullanıcılara ait order’ları getiren bir query yazalım ve N+1 problemine yakından bakalım.
 
+```md
 [n_plus_one_query](../sql/queries:q5_n_plus_one.sql)
+```
 
-- Burada önce kullanıcıları, daha sonra `orders` tablosundan her kullanıcının order’larını ayrı ayrı query olarak yazarsak N+1 problemi ortaya çıkar. Bu durum büyük ölçekli projelerde hem sorguları yavaşlatır hem de maliyeti artırır.
+* Burada önce kullanıcıları, daha sonra `orders` tablosundan her kullanıcının order’larını ayrı ayrı query olarak yazarsak N+1 problemi ortaya çıkar. Bu durum büyük ölçekli projelerde hem sorguları yavaşlatır hem de maliyeti artırır.
 
+```md
 [n_plus_one_query](../sql/queries:q6_nplus_one_fix.sql)
+```
 
-**
-SELECT u.id, u.name, o.id, o.total_price FROM users u JOIN orders o ON o.user_id = u.id LIMIT 0, 10000	10000 row(s) returned	0.0019 sec / 0.018 sec
-**
-- Bunun yerine  yukarıda olduğu gibi Join kullanırsak hem hızlı bir sonuç alırı hemde performans açısından iyidir. 
+```sql
+SELECT u.id, u.name, o.id, o.total_price
+FROM users u
+JOIN orders o ON o.user_id = u.id
+LIMIT 0, 10000;
+-- 10000 row(s) returned
+-- 0.0019 sec / 0.018 sec
+```
+
+* Bunun yerine yukarıda olduğu gibi `JOIN` kullanırsak hem hızlı bir sonuç alırız hem de performans açısından daha iyidir.
+
+---

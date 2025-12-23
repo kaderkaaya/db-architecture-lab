@@ -95,8 +95,8 @@ Bu sorgu, en son görülen id’den sonra gelen kayıtları getirir.
 ---
 
 ### SQL ile Offset ve Pagination
-[text](../sql/post_seed.sql)
-[text](../sql/queries:q7_pagination.sql)
+[post_seed](../sql/post_seed.sql)
+[pagination_query](../sql/queries:q7_pagination.sql)
 
 ```sql
 SELECT * 
@@ -159,4 +159,4 @@ LIMIT 10 OFFSET 100000;
 ```
 '-> Limit: 10 row(s)  (cost=0.71 rows=1) (actual time=0.0265..0.0265 rows=0 loops=1)\n    -> Index range scan on posts using idx_created_at_posts over (created_at <= \'2024-01-01\') (reverse), with index condition: (posts.created_at <= DATE\'2024-01-01\')  (cost=0.71 rows=1) (actual time=0.0256..0.0256 rows=0 loops=1)\n'
 ```
-* Burda herhangi bir satır atlamaz. sayfa geçildiğinde kaldığı yerden devam eder.
+* Burda herhangi bir satır atlamaz. sayfa geçildiğinde kaldığı yerden devam eder. Bu nedenle büyük datasetlerinde cursor based tercih edilebilir.

@@ -77,12 +77,13 @@ id: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 * 6 numaralı veri tamamen atlanmış olur ve **veri kayması** yaşanır.
 
 ---
+CPU Etkisi: Çok yüksektir. Çünkü veritabanı her seferinde baştan başlayarak satırları saymak zorundadır. Satır sayısı arttıkça CPU'nun döngü sayısı ve karşılaştırma maliyeti lineer (doğrusal) olarak artar.actual time değerinin artması, CPU'nun o 100 bin satırı "atlamak" için ne kadar fazla mesai harcadığını gösteriyor.
 
 ### Cursor Based Pagination
 
 Bunu **cursor based pagination** ile çözeriz. Kısaca şöyle açıklayayım:
 Cursor based pagination, en son gördüğüm id’den sonra gelen verileri getirir.
-
+- CPU Etkisi: Çok düşüktür ve sabittir ($O(\log n)$). Veri setin 100 bin satır da olsa 100 milyon satır da olsa, CPU sadece index üzerinden hedef noktayı bulur ve sıradaki 10 kaydı okur.
 Örneğin:
 
 ```sql
@@ -160,3 +161,10 @@ LIMIT 10 OFFSET 100000;
 '-> Limit: 10 row(s)  (cost=0.71 rows=1) (actual time=0.0265..0.0265 rows=0 loops=1)\n    -> Index range scan on posts using idx_created_at_posts over (created_at <= \'2024-01-01\') (reverse), with index condition: (posts.created_at <= DATE\'2024-01-01\')  (cost=0.71 rows=1) (actual time=0.0256..0.0256 rows=0 loops=1)\n'
 ```
 * Burda herhangi bir satır atlamaz. sayfa geçildiğinde kaldığı yerden devam eder. Bu nedenle büyük datasetlerinde cursor based tercih edilebilir.
+
+| **Kriter**            | **Offset Based Pagination**                      | **Cursor Based Pagination**                  |
+| --------------------- | ------------------------------------------------ | -------------------------------------------- |
+| **CPU Kullanımı**     | Offset arttıkça artar **O(n)**                   | Her zaman düşük ve sabit **O(log n)**        |
+| **Hafıza (RAM)**      | Büyük offsetlerde sıralama için fazla RAM harcar | Minimum düzeyde RAM kullanır                 |
+| **I/O (Disk)**        | Gereksiz binlerce satırı okur                    | Sadece ihtiyaç duyulan satırları okur        |
+| **Ölçeklenebilirlik** | Kötü (Veri büyüdükçe sistem yavaşlar)            | Mükemmel (Veri boyutu performansı etkilemez) |

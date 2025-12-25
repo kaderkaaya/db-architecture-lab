@@ -166,4 +166,7 @@ Burada yine değişmedi çünkü DB kendini koruyor; default olarak **Repeatable
 
 Stock değeri güncellenmez çünkü **REPEATABLE READ**.
 
+Isolation levels'i direk dbden yapmak. yerine kod içinde yapmak daha mantıklıdır.İzolasyon seviyesini veritabanının ayarlarından kalıcı olarak değiştirmek tehlikelidir. Çünkü:
+Performans: Tüm sistemi SERIALIZABLE yaparsan, en basit sorgular bile birbirini beklemeye başlar ve uygulama aşırı yavaşlar.
+Esneklik: Genellikle sistemin %95'i için READ COMMITTED (varsayılan) yeterlidir. Sadece %5'lik kritik kısımlar (stok, bakiye vb.) için seviyeyi yükseltmek en profesyonel yaklaşımdır.
 ---

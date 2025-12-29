@@ -60,6 +60,7 @@ Bakiyen 100 TL. Aynı anda iki farklı ATM’den 100 TL çekme emri veriyorsun.
 * Mantık: “Kesin çakışma olacak, ben veriyi baştan kilitleyeyim.”
 * Veriye erişildiği **an** locking yapılır.
 * Veri güvenliği **maksimumdur**.
+* veriyi okur.
 * Ancak:
 
   * Diğer işlemler bekletilir
@@ -135,7 +136,7 @@ await sequelize.transaction(async (t) => {
 * Çok hızlıdır, işlemler birbirini beklemez.
 * Çakışma olursa işlem iptal edilir, kullanıcı bilgilendirilir.
 * Performans optimizasyonu için idealdir.
-
+* versiyon kontrolü yapar.
 ```js
 const stock = await Stock.findByPk(1);
 stock.quantity -= 1;

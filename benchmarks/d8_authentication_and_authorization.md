@@ -116,4 +116,6 @@ Kimliği doğrulanmış bir kullanıcının hangi kaynaklara erişebileceğini b
 | Service                  | İş kuralı          |
 | Repository               | DB                 |
 
+* Access Token çalınırsa saldırganın elindeki süre kısıtlı olsun diye kısa tutarız. Refresh Token çalınırsa, veritabanından bu token'ı silerek (Blacklisting/Revocation) tüm oturumları geçersiz kılabiliriz.
+ 
 ---

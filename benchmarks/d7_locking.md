@@ -127,7 +127,12 @@ await sequelize.transaction(async (t) => {
   }
 });
 ```
-
+Banka Hesabı Transferi Bir hesaptan para çekerken Pessimistic Lock kullanırsan:
+SQL: SELECT * FROM accounts WHERE id = 1 FOR UPDATE; (Bu satırı kilitler).
+Diğer hiçbir işlem (başka bir ATM, mobil şube) o satırı okuyamaz veya güncelleyemez, beklemek zorunda kalır.
+Sen bakiyeyi güncelleyip COMMIT yapınca kilit açılır.
+Avantajı: Veri %100 güvendedir, asla hata olmaz. 
+Dezavantajı: Çok yavaştır. Herkes birbirini beklediği için sistem hantallaşır (Deadlock riski vardır).
 ---
 
 ## 2) Optimistic Concurrency Control (İyimser)
@@ -156,7 +161,20 @@ SET stock = stock - 1,
     version = version + 1
 WHERE id = 1 AND version = 5;
 ```
+Google Docs:
+Sen ve arkadaşın aynı anda bir metin belgesini düzenliyorsunuz.
+Sen kendi bilgisayarında yazıyorsun, o kendi bilgisayarında. Kimse kimseyi engellemiyor (Kilit yok).
+Sen "Kaydet" dediğinde sistem bakar: "Ben bu belgeyi sana verdiğimde versiyonu 5'ti, şu an hala 5 mi?"
+Eğer arkadaşın o arada kaydedip versiyonu 6 yaptıysa, sistem sana der ki: "Hata! Arkadaşın senden önce davrandı. Değişiklikleri birleştir ya da tekrar dene."
 
+ÇOK HIZLI OLMAYAN YANİ KİMSENİN BU VERİYİ AYNI ANDA DEĞİŞTİRECEĞİNİ DÜŞÜNMEDİĞİMİZ YERLERDE YAPARIZ
+VERSİONNN VARRR!!!!
+
+Envanter Güncelleme:
+Tabloda bir version kolonu tutarsın (Örn: version: 1).
+Kullanıcı veriyi çeker: "Ürün: iPhone, Stok: 10, Versiyon: 1".
+Kullanıcı butona basar: UPDATE products SET stock = 9, version = 2 WHERE id = 1 AND version = 1;
+Eğer o arada başkası versiyonu 2 yaptıysa, senin WHERE şartın tutmaz ve "0 satır etkilendi" döner. Sen de kullanıcıya "Hata" dersin.
 ---
 
 ## Locking Types

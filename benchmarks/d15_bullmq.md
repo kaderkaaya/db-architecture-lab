@@ -143,5 +143,8 @@ app.listen(3000, () => console.log(" Dashboard at http://localhost:3000/bullmq-d
 ```
 Eğer `http://localhost:3æ000/bullmq-dashboard` Sitesini ziyaret edersek bütün jobları görebiliriz.
 
+Producer (Gönderici): Mesajı oluşturan servis (Örn: Sipariş Servisi).
+Message Broker (Kargo Merkezi): Mesajı alan, saklayan ve ileten araç (Redis, RabbitMQ, Kafka).
+Consumer (Alıcı): Mesajı dinleyen ve işleyen servis (Örn: Stok veya Mail Servisi).
 
 ---
